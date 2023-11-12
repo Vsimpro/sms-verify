@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<body>
+    <h1> SMS Verification. </h1>
+    <p> Please include country-code (f.e +358) </p>
+    <p> Name:
+        <input name="name"   id="name"> </input>
+    </p>
+    <p> Nmbr:
+        <input name="number" id="number"> </input>
+    </p>
+    <button id="submit"> Submit </button>
+</body>
+<script>
+// Leave blank when using a domain
+var BACKEND = "http://localhost:3210"
+
+var body = document.getElementsByTagName("body")[0]
+
+var NAME   = ""
+var NUMBER = ""
+
+document.getElementById("submit").addEventListener("click", function (){
+    
+    var name = document.getElementById("name")
+    var number = document.getElementById("number")
+
+    NAME   = name.value 
+    NUMBER = number.value 
+
+    sendRegister()
+
+    let code_p    = document.createElement("p")
+        code_p.innerText = "You should've received a SMS message. Please provide the code included in it below:"
+    
+    let code      = document.createElement("input")
+    let send_code = document.createElement("button")
+        send_code.innerText = "Verify"
+
+    code_p.appendChild( code )
+    code_p.appendChild( send_code )
+
+    body.appendChild( code_p )
+
+    document.getElementById("submit").remove()    
+
+    send_code.addEventListener("click", function (){
+        verify( code.value )
+    }) 
+})
+
+function sendRegister() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            console.log(xhttp.responseText)
+        }
+    };
+    xhttp.open("POST", BACKEND + "/create", true);
+    xhttp.send(
+        JSON.stringify({ 
+            "name"   : NAME,
+            "number" : NUMBER
+        })
+    );
+}
+
+function verify(code) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            if (xhttp.responseText == "ok") {
+                alert("User verified!")
+            } else {
+                alert("Could not verify.")
+            }
+        }
+    };
+    xhttp.open("POST", BACKEND + "/verify", true);
+    xhttp.send(
+        JSON.stringify({ 
+            "name"   : NAME,
+            "code"   : code
+        })
+    );
+
+}
+
+function checkStatus() {
+  //TODO:
+}
+
+</script>
